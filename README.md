@@ -5,7 +5,7 @@
 > 完成标准：一个不了解该行业的人，仅看这份文档，就能回答以上四个问题。
 
 **线上地址**
-- Netlify（主站）：<https://industry-problem-atlas-458.netlify.app>
+- Netlify（主站）：<https://industry-problem-atlas.netlify.app>
 - GitHub Pages（备份）：<https://wulinjun007.github.io/industry-problem-atlas/>
 
 ## 站点内容
