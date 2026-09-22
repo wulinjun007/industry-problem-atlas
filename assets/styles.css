@@ -237,6 +237,33 @@ b{font-weight:650}
 .tg-fact{background:#e8f0fb;color:#1d4ed8} .tg-hypo{background:var(--partbg);color:var(--part)} .tg-opp{background:var(--okbg);color:var(--ok)}
 .ft p{font-size:12.5px;color:var(--mut);max-width:900px;margin-bottom:8px}
 
+/* ---------- 八大底层问题 ---------- */
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.acard{background:var(--card);border:1px solid var(--line2);border-radius:13px;padding:15px 17px;display:flex;flex-direction:column;gap:9px}
+.ac-h{display:flex;align-items:center;gap:10px}
+.ac-no{width:26px;height:26px;border-radius:8px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;flex:none}
+.ac-h h3{font-size:16px}
+.ac-def{font-size:13px;color:var(--mut)}
+.ac-mem{display:flex;flex-direction:column;gap:3px;border-top:1px dashed var(--line2);padding-top:9px}
+.ac-mem a{display:flex;gap:9px;align-items:baseline;font-size:12.5px;color:var(--mut);text-decoration:none;padding:3px 6px;border-radius:7px}
+.ac-mem a:hover{background:#f1f0ea;color:var(--ink);text-decoration:none}
+.ac-mem a b{font-family:var(--mono);color:var(--acc2);font-size:11px;flex:none}
+.ac-form{font-size:12px;color:var(--faint);border-top:1px dashed var(--line2);padding-top:8px;margin-top:auto}
+.ac-form span{display:inline-block;background:#eef1fc;color:var(--acc2);border-radius:6px;padding:1px 8px;margin-right:6px;font-size:11px}
+
+/* ---------- 八层坐标系 / 产物顺序（方法论页） ---------- */
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.layer{background:var(--card);border:1px solid var(--line2);border-radius:11px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start}
+.layer i{font-style:normal;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--acc2);border:1px solid #c9d4f5;background:#eef1fc;border-radius:7px;padding:2px 7px;flex:none;margin-top:2px}
+.layer b{display:block;font-size:14px}
+.layer p{font-size:12.5px;color:var(--mut)}
+.isec-note{font-size:14px;color:var(--mut);background:#f4f6fd;border-left:3px solid var(--acc);border-radius:0 9px 9px 0;padding:10px 14px;margin-bottom:14px}
+.isec-note b{color:var(--ink)}
+.order{list-style:none;counter-reset:od;display:grid;gap:10px}
+.order li{counter-increment:od;background:var(--card);border:1px solid var(--line2);border-radius:11px;padding:13px 16px;display:flex;gap:13px;align-items:flex-start;font-size:13.5px;color:var(--mut)}
+.order li::before{content:counter(od);font-family:var(--mono);font-weight:700;color:#fff;background:var(--acc);border-radius:8px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex:none}
+.order b{color:var(--ink);display:block;margin-bottom:2px;font-size:14px}
+
 /* ---------- 响应式 ---------- */
 @media (max-width:960px){
   .igrid2{grid-template-columns:1fr}
@@ -244,7 +271,7 @@ b{font-weight:650}
   .toc nav{flex-direction:row;flex-wrap:wrap;gap:4px 14px;border:none;margin-left:0}
   .toc nav a{border-left:none;padding:2px 0}
   .sgrid{grid-template-columns:1fr}
-  .ch,.heat,.f2,.conf-g,.iv{grid-template-columns:1fr}
+  .ch,.heat,.f2,.conf-g,.iv,.layers{grid-template-columns:1fr}
   .mvp-g{grid-template-columns:1fr}
   .nv>a{display:none}
   .tt{display:block;overflow-x:auto}

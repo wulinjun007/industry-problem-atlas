@@ -8,6 +8,7 @@ const path = require('path');
 const ROOT = __dirname;
 const MAN = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/manifest.json'), 'utf8'));
 const IND = MAN.industries;
+const ARCH = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/archetypes.json'), 'utf8')).archetypes;
 
 const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const FREQ_SHORT = { '每日': '日', '每周': '周', '每月': '月', '每季': '季', '每年': '年', '偶发': '偶发' };
@@ -57,6 +58,16 @@ function buildIndex(data) {
   const total = (f) => data.reduce((n, d) => n + (d[f] || []).length, 0);
   const nScen = total('scenarios'), nRoles = total('roles'), nTools = total('tools'), nCases = total('cases');
   const clusterChips = MAN.clusters.map((c) => '<button class="chip" data-c="' + c + '">' + c + '</button>').join('');
+  const archCards = ARCH.map((a) => {
+    const mem = a.members.map((m) => {
+      const meta = IND.find((x) => x.num === m.num);
+      return '<a href="industries/' + m.num + '-' + meta.id + '.html"><b>' + m.num + '</b><span>' + esc(m.why) + '</span></a>';
+    }).join('');
+    return '<div class="acard"><div class="ac-h"><span class="ac-no mono">' + a.id + '</span><h3>' + esc(a.name) + '</h3></div>' +
+      '<p class="ac-def">' + esc(a.def) + '</p>' +
+      '<div class="ac-mem">' + mem + '</div>' +
+      '<p class="ac-form"><span>网站形态</span>' + esc(a.form) + '</p></div>';
+  }).join('\n');
   const cards = data.map((d) => {
     const m = IND.find((x) => x.num === d.num) || d;
     const search = esc([d.name, d.subfields.join(' '), d.core, d.keyQuestion, d.oneLiner, (d.typicalUsers || []).join(' ')].join(' '));
@@ -74,13 +85,17 @@ function buildIndex(data) {
     '<p class="kick mono">重庆 33618 · 18 个「新星」产业集群 · 逐个拆成问题空间</p>' +
     '<h1>先拆问题，<br>再谈网站。</h1>' +
     '<p class="lede">把 18 个产业逐一还原成「谁在什么情况下遇到什么问题、现在怎么处理、为什么难、哪些步骤值得数字化」的问题地图。每张地图包含产业链、用户角色、' + nScen + ' 个真实工作场景及其触发事件、决策参数、痛点强弱与现有替代方案——所有痛点均标注证据强度，待一线访谈验证。</p>' +
-    '<div class="stat mono"><div><b>18</b>产业</div><div><b>' + nScen + '</b>场景</div><div><b>' + nRoles + '</b>角色</div><div><b>' + nTools + '</b>现有工具</div><div><b>' + nCases + '</b>公开案例</div></div>' +
+    '<div class="stat mono"><div><b>18</b>产业</div><div><b>' + nScen + '</b>场景</div><div><b>' + nRoles + '</b>角色</div><div><b>' + nTools + '</b>现有工具</div><div><b>' + nCases + '</b>公开案例</div><div><b>' + ARCH.length + '</b>底层问题</div></div>' +
   '</div></section>' +
   '<section class="sec"><div class="wrap">' +
     '<div class="sec-h"><h2>18 张问题地图</h2><p>点开任一产业，按「产业链 → 角色 → 场景 → 痛点 → 网站可解性」阅读；场景卡片可按「网站可解 / 部分可解 / 必须线下」过滤。</p></div>' +
     '<div class="fbar"><div class="chips" id="cchip"><button class="chip on" data-c="全部">全部</button>' + clusterChips + '</div>' +
     '<input id="q" type="search" placeholder="搜产业名 / 细分 / 核心问题 / 用户角色…"></div>' +
     '<div class="igrid" id="igrid">' + cards + '</div>' +
+  '</div></section>' +
+  '<section class="sec" id="arch"><div class="wrap">' +
+    '<div class="sec-h"><h2>八大底层问题</h2><p>拆完 18 个产业会发现：痛点不是随机的，可以归到 ' + ARCH.length + ' 种稳定的企业问题。以后不能用「18 个行业 = 18 个首页」思考，而要走：行业 → 角色 → 任务 → 决策 → 痛点 → 数据 → 产品。</p></div>' +
+    '<div class="agrid">' + archCards + '</div>' +
   '</div></section>' +
   '<section class="sec alt" id="done"><div class="wrap">' +
     '<div class="sec-h"><h2>什么才算完成</h2><p>每个产业至少完成以下拆解——这是 P0 标准，不是可选项。</p></div>' +
@@ -214,10 +229,29 @@ function buildMethod() {
     ['信任来源', 'mvp.trust'],
     ['访谈对象与问题', 'mvp.interviewees / questions'],
     ['验证指标', 'mvp.metrics']];
+  const layers = [
+    ['产业链', '从原料 / 技术到最终用户，中间经过谁？'],
+    ['角色', '谁在设计、买、卖、使用、维护、审核？'],
+    ['任务', '每种角色每天到底在做什么？'],
+    ['触发事件', '什么事情发生以后，他开始主动找信息？'],
+    ['决策变量', '做这个决定到底要比较哪些参数？'],
+    ['当前做法', 'Excel、PDF、搜索、供应商、老师傅、顾问，还是内部系统？'],
+    ['痛点', '信息找不到、不会比较、不会判断、协作慢、风险高，还是线下实施困难？'],
+    ['数字产品价值', '网站到底能缩短哪一步？不能解决什么？']
+  ];
+  const order = [
+    ['18 张行业问题地图', '本站已完成：产业链、角色、场景、卡点、网站可解性拆清楚，痛点全部标注证据强度。'],
+    ['每张地图选 1～3 个值得产品化的问题', '优先级自然出现，不用强行选：中试对接（12 生物制造）、丘陵农机适配（06 农机装备）、新材料应用验证（13 前沿新材料）都是公开资料直接点名的堵点。'],
+    ['再进入能直接建站的需求文档', '按上面 21 项深度 + 访谈验证，写到「可以画页面」为止——而不是先定网站名字再硬套功能。']
+  ];
   const body =
   '<main class="wrap mpage">' +
   '<header class="mh"><p class="kick mono">方法论</p><h1>先拆问题，再谈网站</h1>' +
   '<p class="lede">本站不是 18 份「漂亮 PRD」，而是 18 份行业操作手册。每份文档固定做到下面的深度，完成标准只有一条：<b>一个不了解该行业的人，仅看这份文档，就能回答——谁在什么情况下遇到什么问题，现在怎么处理，为什么难，哪些步骤值得数字化。</b></p></header>' +
+  '<section class="isec"><h2>八层问题坐标系 <small>研究任何陌生行业先走这 8 层，不要先问「能做什么网站」</small></h2>' +
+  '<div class="layers">' +
+  layers.map(([a, b], i) => '<div class="layer"><i class="mono">0' + (i + 1) + '</i><div><b>' + a + '</b><p>' + esc(b) + '</p></div></div>').join('') +
+  '</div></section>' +
   '<section class="isec"><h2>每张地图的固定深度（21 项）</h2>' +
   '<table class="tt"><thead><tr><th>拆解项</th><th>对应字段</th></tr></thead><tbody>' +
   p0.map(([a, b]) => '<tr><td><b>' + a + '</b></td><td class="mono">' + esc(b) + '</td></tr>').join('') + '</tbody></table></section>' +
@@ -226,7 +260,9 @@ function buildMethod() {
   '<div class="cf c高"><b>证据 高</b><p>公开资料充分且普遍（政策、上市公司公告、广为人知的产业事实）。</p></div>' +
   '<div class="cf c中"><b>证据 中</b><p>有产业依据的推断：流程合理、数字与细节待核实。</p></div>' +
   '<div class="cf c低"><b>证据 低</b><p>待验证假设：只有访谈一线后才能确认或推翻。</p></div></div></section>' +
-  '<section class="isec"><h2>网站可解性的三种判定</h2><ul class="pl-list">' +
+  '<section class="isec"><h2>网站可解性的三种判定</h2>' +
+  '<p class="isec-note">网站真正能缩短的是 <b>7 种成本</b>：搜索、理解、比较、匹配、验证、协作、决策；不硬碰制造、实验、安装、临床、审批、维修操作本身——硬碰就是伪需求，最多做它的前置导航和事后沉淀。</p>' +
+  '<ul class="pl-list">' +
   '<li><b>网站可解</b>——问题本质是「信息不对称 / 分散 / 难比较」，网页聚合 + 结构化就能显著降低成本。</li>' +
   '<li><b>部分可解</b>——信息部分在线化，但决策还依赖线下资源（样品、实验、关系、资质）。</li>' +
   '<li><b>必须线下</b>——问题的瓶颈是物理世界（产线、临床、审批、现场服务），网站只能做辅助（查资料、备资料、找线索）。</li></ul></section>' +
@@ -235,6 +271,10 @@ function buildMethod() {
   '<li>场景与痛点：按真实工作流程推导的<b>问题假设</b>，不编造精确数字、论文、URL 与企业内幕。</li>' +
   '<li>任何痛点进入产品需求前，必须完成 mvp 列出的访谈与验证指标。</li>' +
   '<li>本站不替代官方文件，不构成投资建议；引用数据以官方最新披露为准。</li></ul></section>' +
+  '<section class="isec"><h2>产物的正确顺序 <small>这一次，逻辑顺序不再反过来</small></h2>' +
+  '<ol class="order">' +
+  order.map(([a, b]) => '<li><div><b>' + a + '</b>' + esc(b) + '</div></li>').join('') +
+  '</ol></section>' +
   '<section class="isec"><h2>机器校验</h2><p>18 份 JSON 均通过 <span class="mono">node tools/validate.js</span> 硬校验：场景数量、sid 连续性、角色引用、枚举合法性、关键词数量、空话词（「提高效率」「赋能」等）一律拦截。</p></section>' +
   '</main>';
   return shell('方法论与完成标准 · 行业问题地图', '每份行业操作手册的固定深度、证据分层与网站可解性判定', body, { page: 'method.html' });
